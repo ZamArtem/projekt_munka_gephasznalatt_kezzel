@@ -2,13 +2,16 @@ import cv2
 import numpy as np
 import mediapipe as mp
 import time
+import pyautogui
+pyautogui.FAILSAFE = False
 
 
 cap = cv2.VideoCapture(0)
-
-cap.set(3, 640)
-cap.set(4, 480)
-
+camszelesseg = 640
+cammagassag  = 480
+cap.set(3, camszelesseg)
+cap.set(4, cammagassag)
+frameR = 100
 run = True
 x = 0
 pTime = 0
@@ -20,6 +23,9 @@ tipIds = [4,8,12,16,20]
 success, img = cap.read()
 h, w, c = img.shape
 zold = (0, 255, 0)
+lila = (255,0,255)
+szelesseg, magassag = pyautogui.size()
+
 while run:
     success, img = cap.read()
     imageRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -50,11 +56,12 @@ while run:
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lista.append([id,cx,cy])
-                #print(lista)
+            x1, y1 = lista[8][1:]
+            x2, y2 = lista[12][1:]
                 #if id == 8 :
                     #
                     # cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
-
+            #print(x1,y1,x2,y2)
 
 
             ujjak = []
@@ -68,9 +75,22 @@ while run:
                     ujjak.append(1)
                 else:
                     ujjak.append(0)
-            print(ujjak)
 
+            if ujjak[1] == 1 and ujjak[2] == 0:
 
+                cv2.rectangle(img, (frameR, frameR),(camszelesseg-frameR, cammagassag-frameR), lila,2)
+                convertersz  = np.interp(x1,(frameR,camszelesseg-frameR),(0,szelesseg))
+                convertermag = np.interp(x1,(frameR,cammagassag-frameR),(0,magassag))
+
+                a = szelesseg - convertersz
+                b = magassag  - convertermag
+                pyautogui.moveTo(a,b)
+                #cv2.circle(img, (int(a),int(b)), 15, zold, cv2.FILLED)
+                cv2.circle(img,(x1,y1), 15, lila,cv2.FILLED)
+                #mouse.move(a,convertermag)
+
+            #if ujjak[1] == 1 and ujjak[2] == 1:
+                
 
     
     cTime = time.time()
