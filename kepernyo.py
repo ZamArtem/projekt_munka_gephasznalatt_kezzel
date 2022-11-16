@@ -19,9 +19,7 @@ mpDraw = mp.solutions.drawing_utils
 tipIds = [4,8,12,16,20]
 success, img = cap.read()
 h, w, c = img.shape
-xList = []
-yList = []
-bbox  = [] 
+zold = (0, 255, 0)
 while run:
     success, img = cap.read()
     imageRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -43,20 +41,35 @@ while run:
                     y_max = y
                 if y < y_min:
                     y_min = y
-            cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            cv2.rectangle(img, (x_min, y_min), (x_max, y_max), zold, 2)
             mpDraw.draw_landmarks(img, handLMs, mpHands.HAND_CONNECTIONS)
+
+        lista = []
         for handLms in results.multi_hand_landmarks: # working with each hand
             for id, lm in enumerate(handLms.landmark):
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
-                xList.append(cx)
-                yList.append(cy)
-                print(id,cx,cy)
-                if id == 8 :
-                    cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
+                lista.append([id,cx,cy])
+                #print(lista)
+                #if id == 8 :
+                    #
+                    # cv2.circle(img, (cx, cy), 25, (255, 0, 255), cv2.FILLED)
 
 
-            mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
+
+            ujjak = []
+
+            if lista[tipIds[0]][1] > lista[tipIds[0] - 1][1]:
+                ujjak.append(1)
+            else:
+                ujjak.append(0)
+            for id in range(1,5):
+                if lista[tipIds[id]][2] < lista[tipIds[id] - 2][2]:
+                    ujjak.append(1)
+                else:
+                    ujjak.append(0)
+            print(ujjak)
+
 
 
     
